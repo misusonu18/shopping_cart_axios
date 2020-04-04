@@ -202,8 +202,28 @@ if (isset($_POST['discountButton']) && isset($_POST['discountAmount'])) {
     </div>
 </div>
 
-<template>
-    <img src="" alt="demo" class="card-img-top" style="width:100px;">
+<template id="all_products">
+    <div class="card pl-3 pb-3 pt-3 pr-3 ml-5 mb-5 mt-5" style="width: 19rem;"> 
+        <img alt="demo" class="card-img-top product-image"> 
+        <hr class="bg-info">
+        <div class="card=body"> 
+            <p class="h5 font-weight-bold product-name"> </p> 
+            <p class="lead text-justify text-muted product-details"></p> 
+            <p class="h5 text-center font-weight-bold product-price">$</p> 
+            <div class="text-center"> 
+                <button class="btn btn-info btn-lg rounded-pill button-cart" 
+                    id="button_cart" 
+                    data-cart-id='' 
+                >  
+                    Add to cart
+                </button> 
+            </div> 
+        </div> 
+    </div>
+</template>
+
+<template id="cart_item_products">
+    <img src="" alt="demo" class="card-img-top cart-image" style="width:100px;">
     <div class="d-flex justify-content-between">
         <p class="h5 text-muted cart-name"></p>
         <p class="h6 text-muted text-truncate cart-details"></p>
