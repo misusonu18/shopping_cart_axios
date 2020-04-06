@@ -3,106 +3,7 @@ include 'layout/header.php';
 include 'config/database.php';
 session_start();
 
-$getCarts = mysqli_query($connection, 'select * from cart_table');
 $getCategory = mysqli_query($connection, 'select distinct category from products');
-$subTotal = 0.00;
-$discountError = 0;
-
-if (isset($subTotal)) {
-    foreach ($getCarts as $records) {
-        $subTotal = $subTotal + $records['cart_quantity'] * $records['cart_price'];
-    }
-    $shippingCharge = $subTotal < 1000 ? 100 : 0;
-    $total = $subTotal + $shippingCharge;
-    $tax = 18;
-    $payable = floor($total) + $tax;
-}
-if (empty($subTotal)) {
-    $shippingCharge = 0;
-    $tax = 0.00;
-    $total = 0.00;
-    $payable = 0.00;
-}
-
-if (isset($_POST['discountButton']) && isset($_POST['discountAmount'])) {
-
-    if ($_POST['checkDiscountType'] == 1) {
-        $discountAmount = $_POST['discountAmount'];
-
-        if ($subTotal > 500 && $subTotal < 5000) {
-            if ($discountAmount <= 15) {
-                $discount = floatval(($discountAmount / 100) * $subTotal);
-                $total = $subTotal - $discount;
-                $shippingCharge = $total < 1000 ? 100 : 0;
-                $tax = 18;
-                $payable = $total + $tax;
-            }
-        }
-
-        if ($subTotal > 5000 && $subTotal < 10000 ) {
-
-            if ($discountAmount <= 25) {
-                floatval($discount = ($discountAmount / 100) * $subTotal);
-                $total = $subTotal - $discount;
-                $shippingCharge = $total < 1000 ? 100 : 0;
-                $tax = 18;
-                $payable = $total + $tax;
-            }
-            else {
-                $discountError = 1;
-            }
-
-        }
-        if ($subTotal >= 10000 && $subTotal < 20000) {
-
-            if ($discountAmount <= 35) {
-                floatval($discount = ($discountAmount / 100) * $subTotal);
-                $total = $subTotal - $discount;
-                $shippingCharge = $total < 1000 ? 100 : 0;
-                $tax = 18;
-                $payable = $total + $tax;
-            }
-
-        }
-
-        if ($discountAmount >= 55) {
-            $discountError = 1;
-        }
-    }
-
-    if ($_POST['checkDiscountType'] == 2) {
-        $discountAmount = $_POST['discountAmount'];
-        
-        if ($subTotal == $discountAmount) {
-            $discountError = 1;
-        }
-
-        if ($discountAmount <= 800 && $subTotal > 5000) {
-            $discount = $discountAmount;
-            $total = $subTotal - $discount;
-            $shippingCharge = $total < 1000 ? 100 : 0;
-            $tax = 18;
-            $payable = $total + $tax;
-        }
-
-        if ($discountAmount <= 350 && $subTotal > 500) {
-            $discount = $discountAmount;
-            $total = $subTotal - $discount;
-            $shippingCharge = $total < 1000 ? 100 : 0;
-            $tax = 18;
-            $payable = $total + $tax;
-        }
-
-        if ($discountAmount <= 1000 && $subTotal > 10000) {
-            $discount = $discountAmount;
-            $total = $subTotal - $discount;
-            $shippingCharge = $total < 1000 ? 100 : 0;
-            $tax = 18;
-            $payable = $total + $tax;
-        }
-
-    }
-}
 
 ?>
 
@@ -123,6 +24,7 @@ if (isset($_POST['discountButton']) && isset($_POST['discountAmount'])) {
                             class="common_selector category custom-radio" 
                             value="<?php echo $record['category']; ?>"
                             data-id = "<?php echo $record['category']; ?>"
+                            onclick="categoryOnChnage()"
                         > 
                             <?php echo $record['category']; ?>
                     </label>
@@ -138,62 +40,61 @@ if (isset($_POST['discountButton']) && isset($_POST['discountAmount'])) {
 
         <div class="col-lg-4 col-md-6 col-sm-5">
             <div class="card border-right-0 border-top-0">
-                <p class="h4">Cart Details</p>
+                <p class="h4 mt-3 ml-3">Cart Details</p>
                 <div class="card-body cart-item-data">
 
                     </div>
 
                 <div class="card-body">
 
-                <form action="" method="post">
-                    <div class="form-inline">
-                            <div class="input-group">
-                                <select class="custom-select mr-2 " name="checkDiscountType">
-                                    <option selected value="1">%</option>
-                                    <option value="2">$</option>
-                                </select>
-                            </div>
-
-                            <div class="input-group">
-                                <input type="text"
-                                    name="discountAmount"
-                                    id="discount"
-                                    placeholder="Discount"
-                                    class="form-control mr-2"
-                                >
-                            </div>
-
-                            <div class="input-group">
-                                <button type="submit"
-                                    id="button-discount"
-                                    class="btn btn-success"
-                                    name="discountButton"
-                                >
-                                    Apply
-                                </button>
-                            </div>
+                <div class="form-inline">
+                        <div class="input-group">
+                            <select class="custom-select discount-type mr-2" name="checkDiscountType" id="check_discount_type">
+                                <option selected value="1">%</option>
+                                <option value="2">$</option>
+                            </select>
                         </div>
-                   </form>
+
+                        <div class="input-group">
+                            <input type="text"
+                                name="discountAmount"
+                                id="discount"
+                                placeholder="Discount"
+                                class="form-control mr-2"
+                            >
+                        </div>
+
+                        <div class="input-group">
+                            <button type="submit"
+                                id="button_discount"
+                                class="btn btn-success"
+                                name="discountButton"
+                                onclick="totalDisplay()"
+                            >
+                                Apply
+                            </button>
+                        </div>
+                </div>
 
                     <hr class="bg-info">
 
-                    <div class="d-block d-flex justify-content-between">
+                    <div class="d-block d-flex justify-content-between cart_payment">
                         <div class="justify-content-start">
-                            <p>Subtotal</p>
-                            <p><?php echo ($total < 1000) ? "ShippingCharges" : ""; ?></p>
-                            <p><?php echo empty($discount) ? "" : "Discount" ?></p>
-                            <p>Total</p>
-                            <p>Tax</p>
-                            <p>Payable</p>
+                            <p id="sub_total_name"></p>
+                            <p id="shipping_charge_name"></p>
+                            <p id="discount_name"></p>
+                            <p id="total_name"></p>
+                            <p id="tax_name"></p>
+                            <p id="payable_name"></p>
                         </div>
 
                         <div class="justify-content-end">
-                            <p>$<?php echo sprintf('%.2f', $subTotal); ?></p>
-                            <p><?php echo ($total < 1000) ? "$".$shippingCharge : "" ; ?></p>
-                            <p><?php echo isset($discount) ? "$".$discount : ""; ?></p>
-                            <p>$<?php echo $total ?></p>
-                            <p>$<?php echo $tax?></p>
-                            <p>$<?php echo sprintf('%.2f', $payable) ?></p>
+                            <p id="sub_total"></p>
+                            <p id="shipping_charge"></p>
+                            <p id="discount_amount_cart"></p>
+                            <p id="total"></p>
+                            <p id="tax"></p>
+                            <p id="payable"></p>
                         </div>
                     </div>
                 </div>
@@ -213,13 +114,18 @@ if (isset($_POST['discountButton']) && isset($_POST['discountAmount'])) {
             <div class="text-center"> 
                 <button class="btn btn-info btn-lg rounded-pill button-cart" 
                     id="button_cart" 
-                    data-cart-id='' 
+                    data-cart-id=''
+                    onclick="productAddButtonClick(this.getAttribute('data-cart-id'))" 
                 >  
                     Add to cart
                 </button> 
             </div> 
         </div> 
     </div>
+</template>
+
+<template id="cart_item_empty_product">
+    <p class="message_cart_empty alert alert-danger"></p>
 </template>
 
 <template id="cart_item_products">
@@ -242,15 +148,15 @@ if (isset($_POST['discountButton']) && isset($_POST['discountAmount'])) {
             readonly
         >
 
-        <button class="btn btn-secondary btn-sm ml-2 mr-2 cart-item-add" data-cart-id="">
+        <button class="btn btn-secondary btn-sm ml-2 mr-2 cart-item-add" data-cart-id="" onclick="productUpdateButtonClick(this.getAttribute('data-cart-id'))">
             <span class="fa fa-plus"></span>
         </button>
 
-        <button class="btn btn-secondary btn-sm mr-2 cart-item-subtract" data-cart-id="">
+        <button class="btn btn-secondary btn-sm mr-2 cart-item-subtract" data-cart-id="" onclick="productSubtractButtonClick(this.getAttribute('data-cart-id'))">
             <span class="fa fa-minus"></span>
         </button>
 
-        <button class="btn btn-danger cart-item-delete btn-sm" data-cart-id="">
+        <button class="btn btn-danger cart-item-delete btn-sm" data-cart-id="" onclick="productDeleteButtonClick(this.getAttribute('data-cart-id'))">
             <span class="fa fa-trash"></span>
         </button>
     </div>
