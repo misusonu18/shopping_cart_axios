@@ -1,8 +1,17 @@
 <?php
 include "config/database.php";
 
-if (isset($_POST['data'])) {
+$json = file_get_contents('php://input');
+$data = json_decode($json);
+if (isset($data->data)) {
+
     $query = "select * from products where status = '1'";
+
+    if (!empty($data->category)) {
+        $type_filter = implode("','",$data->category);
+        $query .= "AND category IN('".$type_filter."')";
+    }
+
 
     $allProducts = mysqli_query($connection,$query);
 
