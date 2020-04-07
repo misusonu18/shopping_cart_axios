@@ -165,7 +165,11 @@ function totalDisplay(){
             document.getElementById('shipping_charge_name').innerHTML = "Shipping Charges";
             document.getElementById('shipping_charge').innerHTML = data['shippingcharge'];
         }
-        if (data['discount']) {
+        if (!data['discount']) {
+            document.getElementById('discount_name').innerHTML = "";
+            document.getElementById('discount_amount_cart').innerHTML = "";
+        }
+        else if (data['discount']) {
             document.getElementById('discount_name').innerHTML = "Discount";
             document.getElementById('discount_amount_cart').innerHTML = data['discount'];
         }
@@ -175,7 +179,9 @@ function totalDisplay(){
         document.getElementById('tax').innerHTML = data['tax'];
         document.getElementById('payable_name').innerHTML = "Payable";
         document.getElementById('payable').innerHTML = data['payable'];
-    })
+        document.getElementById('discount').value = "";
+    });
+
 }
 
 fetchDataCart();
