@@ -157,7 +157,6 @@ function totalDisplay(){
         data:{discount_amount:discount , discount_type:discountType}
     })
     .then(function(response){
-        console.log(response.data);
         var data = response.data;
         document.getElementById('sub_total_name').innerHTML = "Sub-total";
         document.getElementById('sub_total').innerHTML = data['subtotal'];
